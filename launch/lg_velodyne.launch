@@ -1,0 +1,53 @@
+<launch>
+
+  <arg name="rviz" default="true" />
+  <arg name="scanPeriod" default="0.1" />
+
+  <!--- Sim Time -->
+  <param name="/use_sim_time" value="true" />
+
+  <!-- arguments setting -->
+
+ <param name="enable_imu" type="bool" value="true" />
+
+ <param name="enable_debug_path" type="bool" value="true" />
+ <param name="enable_debug_odom" type="bool" value="true" />
+
+ <param name="sync_tolerance" type="double" value="0.01" />
+  <!--GPS 是否加入高斯噪声-->
+ <param name="gps_sim" type="bool" value="false" />
+
+ 
+
+  <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map"  args="0 0 0 1.570795   0        1.570795 /world    /camera_init 10" />
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera" args="0 0 0 -1.570795 -1.570795 0        /camera /base_link   10" />
+
+
+
+
+  <!-- arguments -->
+  <node pkg="loam_velodyne" type="multiScanRegistration" name="multiScanRegistration" output="screen">
+    <param name="lidar" value="HDL-32" /> <!-- options: VLP-16  HDL-32  HDL-64E -->
+    <param name="scanPeriod" value="$(arg scanPeriod)" />
+    <remap from="/multi_scan_points" to="/hdl32e/velodyne_points" />
+  </node>
+
+  <node pkg="loam_velodyne" type="laserOdometry" name="laserOdometry" output="screen" respawn="true">
+    <param name="scanPeriod" value="$(arg scanPeriod)" />
+  </node>
+
+  <node pkg="loam_velodyne" type="laserMapping" name="laserMapping" output="screen">
+    <param name="scanPeriod" value="$(arg scanPeriod)" />
+  </node>
+
+  <node pkg="loam_velodyne" type="transformMaintenance" name="transformMaintenance" output="screen">
+  </node>
+
+  <node pkg="loam_velodyne" type="backend_fusion_node2" name="backend_fusion_node2" output="screen">
+  </node>
+
+ <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find loam_velodyne)/rviz_cfg/loam_velodyne_new.rviz" />
+  </group>
+
+</launch>
