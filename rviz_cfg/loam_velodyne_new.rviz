@@ -15,6 +15,7 @@ Panels:
         - /Path1
         - /Path2
         - /MarkerArray1
+        - /Path3
       Splitter Ratio: 0.5
     Tree Height: 524
   - Class: rviz/Selection
@@ -84,7 +85,7 @@ Visualization Manager:
           Value: true
         Value: true
       Enabled: true
-      Keep: 100
+      Keep: 1
       Name: Odometry
       Position Tolerance: 0.100000001
       Shape:
@@ -117,7 +118,7 @@ Visualization Manager:
           Scale: 1
           Value: true
         Value: true
-      Enabled: true
+      Enabled: false
       Keep: 100
       Name: Odometry
       Position Tolerance: 0.100000001
@@ -133,7 +134,7 @@ Visualization Manager:
         Value: Axes
       Topic: /odom_normal
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -200,6 +201,29 @@ Visualization Manager:
         {}
       Queue Size: 100
       Value: false
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 255; 255; 0
+      Enabled: true
+      Head Diameter: 0.300000012
+      Head Length: 0.200000003
+      Length: 0.300000012
+      Line Style: Lines
+      Line Width: 0.0299999993
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.0299999993
+      Shaft Diameter: 0.100000001
+      Shaft Length: 0.100000001
+      Topic: /backend_fusion_node2/groundtruth_path
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -225,25 +249,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 846.579712
+      Distance: 565.095154
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 100.275726
-        Y: 129.972855
-        Z: -259.188202
+        X: 27.263443
+        Y: 61.4797363
+        Z: -325.628479
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.365202278
+      Pitch: 0.895201802
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.62360334
+      Yaw: 4.75360727
     Saved: ~
 Window Geometry:
   Displays:

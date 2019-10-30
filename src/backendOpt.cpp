@@ -38,7 +38,7 @@ GlobalOptimization::GlobalOptimization()
 
   // gps noise
 //   simulation = true;
-  w_sigma = 1.0f;
+  //w_sigma = 1.0f;
 
 }
 
@@ -226,6 +226,17 @@ void GlobalOptimization::inputGPS(double t, double latitude, double longitude, d
 
 }
 
+/**
+
+**/
+
+void GlobalOptimization::input_Groundtruth(double t, double latitude, double longitude, double altitude)
+{
+    double xyz[3];
+	GPS2XYZ(latitude, longitude, altitude, xyz);
+	vector<double> tmp{xyz[0], xyz[1], xyz[2]};
+	Groundtruth_Map[t] = tmp;
+}
 
 void GlobalOptimization::inputIMU(double t ,Eigen::Quaterniond ImuQ)
 {
@@ -346,8 +357,11 @@ void GlobalOptimization::optimize()
                 iterGPS = GPSPositionMap.find(t);
                 if (iterGPS != GPSPositionMap.end())
                 {
-                    ceres::CostFunction* gps_function = TError::Create(iterGPS->second[0], iterGPS->second[1], 
-                                                                       iterGPS->second[2], iterGPS->second[3]);
+                    // ceres::CostFunction* gps_function = TError::Create(iterGPS->second[0], iterGPS->second[1], 
+                    //                                                    iterGPS->second[2], iterGPS->second[3]);
+
+                    ceres::CostFunction* gps_function = TError2::Create(iterGPS->second[0], iterGPS->second[1],iterGPS->second[2], 
+                                                                        iterGPS->second[3], iterGPS->second[4],iterGPS->second[5]);
                     //printf("inverse weight %f \n", iterGPS->second[3]);
                     problem.AddResidualBlock(gps_function, loss_function, t_array[i]);
 
@@ -411,6 +425,8 @@ void GlobalOptimization::optimize()
             updateGPSPath();                      //输出GPS轨迹
             update_globalPose_befOpt_MapPath();   //输出 gloab pose 未优化之前的轨迹
             update_localpose_MapPath();
+
+            update_Groundtruth_MapPath();         //Groundtruth 参考值
             //printf("global time %f \n", globalOptimizationTime.toc());
             mPoseMap.unlock();
         }
@@ -528,10 +544,38 @@ void GlobalOptimization::update_localpose_MapPath()
     }
 }
 
+void GlobalOptimization::update_Groundtruth_MapPath()
+{
+    Groundtruth_path.poses.clear();
+    map<double, vector<double>>::iterator iter;
+    for (iter = Groundtruth_Map.begin(); iter != Groundtruth_Map.end(); iter++)
+    {
+        geometry_msgs::PoseStamped pose_stamped;
+        pose_stamped.header.stamp = ros::Time(iter->first);
+        pose_stamped.header.frame_id = "world";   //world
+        pose_stamped.pose.position.x = iter->second[0];
+        pose_stamped.pose.position.y = iter->second[1];
+        pose_stamped.pose.position.z = iter->second[2];
+        
+        pose_stamped.pose.orientation.w = 1;
+        pose_stamped.pose.orientation.x = 0;
+        pose_stamped.pose.orientation.y = 0;
+        pose_stamped.pose.orientation.z = 0;
+
+
+        Groundtruth_path.header = pose_stamped.header;
+        Groundtruth_path.poses.push_back(pose_stamped);
+    }
+}
 /**
 **/
 
 void GlobalOptimization::set_sim_gps(const bool sim)
 {
     simulation = sim;
+}
+
+void GlobalOptimization::set_sim_gpsnoise(const double noise)
+{
+    w_sigma = noise;
 }

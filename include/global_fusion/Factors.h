@@ -53,6 +53,33 @@ struct TError
 
 };
 
+struct TError2
+{
+	TError2(double t_x, double t_y, double t_z, double var_lat ,double var_lon,double var_alt)
+				  :t_x(t_x), t_y(t_y), t_z(t_z), var_lat(var_lat) ,var_lon(var_lon) ,var_alt(var_alt){}
+
+	template <typename T>
+	bool operator()(const T* tj, T* residuals) const
+	{
+		residuals[0] = (tj[0] - T(t_x)) / T(var_lat);
+		residuals[1] = (tj[1] - T(t_y)) / T(var_lon);
+		residuals[2] = (tj[2] - T(t_z)) / T(var_alt);
+
+		return true;
+	}
+
+	static ceres::CostFunction* Create(const double t_x, const double t_y, const double t_z, 
+									   const double var_lat, const double var_lon ,const double var_alt)
+	{
+	  return (new ceres::AutoDiffCostFunction<
+	          TError2, 3, 3>(
+	          	new TError2(t_x, t_y, t_z, var_lat ,var_lon ,var_alt)));
+	}
+
+	double t_x, t_y, t_z, var_lat,var_lon,var_alt;
+
+};
+
 struct RelativeRTError
 {
 	RelativeRTError(double t_x, double t_y, double t_z, 

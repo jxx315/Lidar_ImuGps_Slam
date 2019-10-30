@@ -24,6 +24,8 @@ public:
 	void inputGPS(double t, double latitude, double longitude, double altitude, double posAccuracy);
 	void inputGPS(double t, double latitude, double longitude, double altitude, double posAccuracy_Lat,	double posAccuracy_Lon ,double altitude_Alt);
 
+	void input_Groundtruth(double t, double latitude, double longitude, double altitude);
+
 	void inputIMU(double t ,Eigen::Quaterniond ImuQ);
 	void inputOdom(double t, Eigen::Vector3d OdomP, Eigen::Quaterniond OdomQ);
 	void getGlobalOdom(Eigen::Vector3d &odomP, Eigen::Quaterniond &odomQ);
@@ -32,12 +34,14 @@ public:
 	void get_lidar_odom(Eigen::Vector3d &odomP, Eigen::Quaterniond &odomQ);
 
 	void set_sim_gps(const bool sim);
+	void set_sim_gpsnoise(const double noise);
 	nav_msgs::Path global_path;
 
 	nav_msgs::Path gps_path;
 
 	nav_msgs::Path global_befOpt_path;
 	nav_msgs::Path local_path;
+	nav_msgs::Path Groundtruth_path;
 
 private:
 	void GPS2XYZ(double latitude, double longitude, double altitude, double* xyz);
@@ -47,6 +51,7 @@ private:
 	void updateGPSPath();    ///GPS path
     void update_globalPose_befOpt_MapPath();    // 全局pose，在优化前的轨迹
 	void update_localpose_MapPath();
+	void update_Groundtruth_MapPath();          // 参考GPS轨迹
 	// format t, tx,ty,tz,qw,qx,qy,qz
 	map<double, vector<double>> localPoseMap;
 	map<double, vector<double>> globalPoseMap;
@@ -56,6 +61,8 @@ private:
 
 
 	map<double, vector<double>> globalPose_befOpt_Map;
+
+	map<double, vector<double>> Groundtruth_Map;
 
 	
 	bool initGPS;

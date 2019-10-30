@@ -15,7 +15,8 @@
 
  <param name="sync_tolerance" type="double" value="0.01" />
   <!--GPS 是否加入高斯噪声-->
- <param name="gps_sim" type="bool" value="false" />
+ <param name="gps_sim" type="bool" value="true" />
+ <param name="gps_sim_noise" type="double" value="1.0" />
 
  
 

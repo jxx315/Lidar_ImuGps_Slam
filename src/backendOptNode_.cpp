@@ -31,7 +31,8 @@ private:
     ros::Publisher  pub_gps_path;
 
     ros::Publisher  pub_global_befOpt_path;   //把loam转到global下，未优化的pose的轨迹
-    ros::Publisher  pub_local_path;    //localPose 轨迹
+    ros::Publisher  pub_local_path;           //localPose 轨迹
+    ros::Publisher  pub_Groundtruth_path;     //Groundtruth 轨迹
 
 
     ros::Subscriber sub_GPS;
@@ -46,6 +47,8 @@ private:
 
     nav_msgs::Path *global_befOpt_path;
     nav_msgs::Path *local_path;
+
+    nav_msgs::Path *Groundtruth_path;
     double last_vio_t;
     std::queue<sensor_msgs::NavSatFixConstPtr> gpsQueue;
     std::queue<sensor_msgs::ImuPtr> imuQueue;
@@ -61,6 +64,7 @@ private:
 
     // sim gps
     bool  GPS_sim;
+    double  Gps_sim_noise;
 
 public:
     GlobalOptNode():
@@ -70,7 +74,7 @@ public:
         gps_path            = &globalEstimator.gps_path;
         global_befOpt_path  = &globalEstimator.global_befOpt_path;
         local_path          = &globalEstimator.local_path;
-
+        Groundtruth_path    = &globalEstimator.Groundtruth_path;
         last_vio_t = -1;
         //  imu 延迟输入
         imu_waite_count = 0;
@@ -87,7 +91,8 @@ public:
 
         n.getParam("/enable_imu", Enable_imu);
         n.getParam("/sync_tolerance", Sync_tolerance);
-        n.getParam("/gps_sim", GPS_sim);
+        n.getParam("/gps_sim", GPS_sim);  
+        n.getParam("/gps_sim_noise", Gps_sim_noise);
 
         sub_GPS = n.subscribe("/gps/fix", 100, &GlobalOptNode::GPS_callback ,this);
         sub_Odom = n.subscribe("/odom_normal", 100, &GlobalOptNode::loam_callback ,this);
@@ -112,10 +117,12 @@ public:
         pub_global_befOpt_path  = n.advertise<nav_msgs::Path>("global_befOpt_path", 100);
 
         pub_local_path          = n.advertise<nav_msgs::Path>("local_path", 100);
+        pub_Groundtruth_path    = n.advertise<nav_msgs::Path>("groundtruth_path", 100);
 
 
         // add GPS noise for sim
         globalEstimator.set_sim_gps(GPS_sim);
+        globalEstimator.set_sim_gpsnoise(Gps_sim_noise);
     }
 
     /**
@@ -186,12 +193,32 @@ public:
                 double altitude = GPS_msg->altitude;
                 //int numSats = GPS_msg->status.service;
                 double pos_accuracy = GPS_msg->position_covariance[0];
-                double pos_accuracyLat = 1;
+
+                double pos_accuracyLat,pos_accuracyLon,pos_accuracyAlt;
+                if(GPS_sim)
+                {
+                    pos_accuracyLat = Gps_sim_noise;
+                    pos_accuracyLon = Gps_sim_noise;
+                    pos_accuracyAlt = Gps_sim_noise; 
+                }
+                else
+                {
+                    pos_accuracyLat = GPS_msg->position_covariance[0];
+                    pos_accuracyLon = GPS_msg->position_covariance[4];
+                    pos_accuracyAlt = GPS_msg->position_covariance[8]; 
+                }
+
+               
                 if(pos_accuracy <= 0)
                     pos_accuracy = 1;
                 //printf("receive covariance %lf \n", pos_accuracy);
                 //if(GPS_msg->status.status > 8)
-                    globalEstimator.inputGPS(t, latitude, longitude, altitude, pos_accuracy);
+                    //globalEstimator.inputGPS(t, latitude, longitude, altitude, pos_accuracy);
+                if(GPS_msg->status.status == 1)
+                    globalEstimator.inputGPS(t, latitude, longitude, altitude, pos_accuracyLat ,pos_accuracyLon ,pos_accuracyAlt);
+                else
+                    ;
+                globalEstimator.input_Groundtruth(t, latitude, longitude, altitude);
                 gpsQueue.pop();
                 break;
             }
@@ -266,6 +293,7 @@ public:
         pub_global_befOpt_path.publish(*global_befOpt_path);
 
         pub_local_path.publish(*local_path);
+        pub_Groundtruth_path.publish(*Groundtruth_path);
     // std::cout<<"欧拉角："<<global_q.matrix().eulerAngles(2,1,0) *180 /3.1415f<<std::endl;
         double roll, pitch, yaw;
         tf::Matrix3x3(tf::Quaternion(global_q.x(), global_q.y(), global_q.z(), global_q.w())).getRPY(roll, pitch, yaw);
