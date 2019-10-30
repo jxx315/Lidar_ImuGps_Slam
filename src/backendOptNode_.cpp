@@ -186,6 +186,7 @@ public:
                 double altitude = GPS_msg->altitude;
                 //int numSats = GPS_msg->status.service;
                 double pos_accuracy = GPS_msg->position_covariance[0];
+                double pos_accuracyLat = 1;
                 if(pos_accuracy <= 0)
                     pos_accuracy = 1;
                 //printf("receive covariance %lf \n", pos_accuracy);

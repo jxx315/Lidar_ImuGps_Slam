@@ -22,6 +22,7 @@ public:
 	GlobalOptimization();
 	~GlobalOptimization();
 	void inputGPS(double t, double latitude, double longitude, double altitude, double posAccuracy);
+	void inputGPS(double t, double latitude, double longitude, double altitude, double posAccuracy_Lat,	double posAccuracy_Lon ,double altitude_Alt);
 
 	void inputIMU(double t ,Eigen::Quaterniond ImuQ);
 	void inputOdom(double t, Eigen::Vector3d OdomP, Eigen::Quaterniond OdomQ);

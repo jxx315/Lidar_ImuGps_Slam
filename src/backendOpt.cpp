@@ -207,6 +207,24 @@ void GlobalOptimization::inputGPS(double t, double latitude, double longitude, d
     newGPS = true;
 
 }
+/**
+**/
+void GlobalOptimization::inputGPS(double t, double latitude, double longitude, double altitude, double posAccuracy_Lat,	double posAccuracy_Lon ,double altitude_Alt)
+{
+	double xyz[3];
+	GPS2XYZ(latitude, longitude, altitude, xyz);
+	vector<double> tmp{xyz[0], xyz[1], xyz[2], posAccuracy_Lat ,posAccuracy_Lon , altitude_Alt};
+    if(simulation)
+     {
+        tmp[0] = tmp[0] + rng.gaussian ( w_sigma );
+        tmp[1] = tmp[1] + rng.gaussian ( w_sigma );
+        tmp[2] = tmp[2] + rng.gaussian ( w_sigma );
+     }
+    printf("new gps: t: %f x: %f y: %f z:%f \n", t, tmp[0], tmp[1], tmp[2]);
+	GPSPositionMap[t] = tmp;
+    newGPS = true;
+
+}
 
 
 void GlobalOptimization::inputIMU(double t ,Eigen::Quaterniond ImuQ)
