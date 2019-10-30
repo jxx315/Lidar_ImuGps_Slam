@@ -194,6 +194,7 @@ public:
                 //int numSats = GPS_msg->status.service;
                 double pos_accuracy = GPS_msg->position_covariance[0];
 
+
                 double pos_accuracyLat,pos_accuracyLon,pos_accuracyAlt;
                 if(GPS_sim)
                 {
@@ -209,6 +210,7 @@ public:
                 }
 
                
+
                 if(pos_accuracy <= 0)
                     pos_accuracy = 1;
                 //printf("receive covariance %lf \n", pos_accuracy);
