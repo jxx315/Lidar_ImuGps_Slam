@@ -34,8 +34,7 @@ Clone the repository and catkin_make:
 Download [KITTI Odometry dataset](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) to YOUR_DATASET_FOLDER and set the `dataset_folder` and `sequence_number` parameters in `kitti_helper.launch` file. Note you also convert KITTI dataset to bag file for easy use by setting proper parameters in `kitti_helper.launch`. 
 
 ```
-    roslaunch aloam_velodyne aloam_velodyne_HDL_64.launch
-    roslaunch aloam_velodyne kitti_helper.launch
+    roslaunch loam_velodyne lg_velodyne.launch 
 ```
 <img src="https://github.com/HKUST-Aerial-Robotics/A-LOAM/blob/devel/picture/kitti_gif.gif" width = 720 height = 351 />
 
